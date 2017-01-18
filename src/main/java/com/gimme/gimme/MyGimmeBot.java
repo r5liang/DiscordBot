@@ -31,6 +31,7 @@ public class MyGimmeBot {
 	        System.exit(1);
 	    }
 		DiscordAPI api = Javacord.getApi(args[0], true);
+		api.setWaitForServersOnStartup(false);
 		api.connectBlocking();
 		try {
 		    BufferedImage img = null;

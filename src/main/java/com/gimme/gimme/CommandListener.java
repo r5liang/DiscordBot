@@ -229,7 +229,7 @@ public class CommandListener implements MessageCreateListener {
         actions.put("search", (String[] tokens, Message message) -> statSearchCommand(tokens, message));
         //actions.put("getid", (String[] tokens, Message message) -> message.reply(message.getAuthor().getId()));
         actions.put("!help", (String[] tokens, Message message) -> helpCommand(tokens, message));
-        actions.put("invite", (String[] tokens, Message message) -> inviteCommand(tokens, message));
+        actions.put("!invite", (String[] tokens, Message message) -> inviteCommand(tokens, message));
     }    
 
     // Killswitch
@@ -549,7 +549,7 @@ public class CommandListener implements MessageCreateListener {
         URLConnection connection2 = url2.openConnection();
         
         Document doc2 = parseXML(connection2.getInputStream());
-        NodeList postNodes = doc2.getElementsByTagName("post");
+        NodeList postNodes = doc2.getElementsByTagName((format.type == ALTERNATE) ? "file-url" : "post");
         int postsFound = postNodes.getLength();
         debugInfo += postsFound + " posts found\n";
         
@@ -569,7 +569,8 @@ public class CommandListener implements MessageCreateListener {
             
             for (int i = 0; i < randomInts.length; i++) {
                 debugInfo += randomInts[i] + ", ";
-                answer.add(dUrlBase + ((Element)(postNodes.item(randomInts[i]))).getAttribute("file_url"));
+                //NodeList nl = .getElementsByTagName("file-url")
+                answer.add(dUrlBase + ((Element)(postNodes.item(randomInts[i]))).getTextContent());
             }
         } else {
             for (int i = 0; i < postsFound; i++) {
