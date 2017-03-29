@@ -1,10 +1,12 @@
 package com.gimme.gimme;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
@@ -154,6 +156,7 @@ public class CommandListener implements MessageCreateListener {
 
     public static final int COMMON = 1;
     public static final int ALTERNATE = 2;
+    public static final int G = 3;
 
     public static String gUrl;
     public static String tUrl;
@@ -181,7 +184,7 @@ public class CommandListener implements MessageCreateListener {
         formats = new HashMap<String, APIFormat>();
         // load from file should go here
         formats.put("d", new APIFormat(ALTERNATE, dUrl, dUrl2));
-        formats.put("g", new APIFormat(COMMON, gUrl, gUrl));
+        formats.put("g", new APIFormat(G, gUrl, gUrl));
         formats.put("gimme", new APIFormat(COMMON, gUrl, gUrl));
         formats.put("t", new APIFormat(COMMON, tUrl, tUrl));
         
@@ -504,6 +507,9 @@ public class CommandListener implements MessageCreateListener {
         URL url = new URL(countCheckUrl);
         URLConnection connection = url.openConnection();
         
+        //System.out.println(debugInfo);
+        //System.out.println(getStringFromInputStream(connection.getInputStream()));
+        
         // Opening response as XML
         Document doc = parseXML(connection.getInputStream());
         NodeList descNodes = doc.getElementsByTagName("posts");
@@ -572,6 +578,11 @@ public class CommandListener implements MessageCreateListener {
                 //NodeList nl = .getElementsByTagName("file-url")
                 answer.add(dUrlBase + ((Element)(postNodes.item(randomInts[i]))).getTextContent());
             }
+        } else if (format.type == G) {
+            for (int i = 0; i < postsFound; i++) {
+                debugInfo += i + ", ";
+                answer.add("http:" + ((Element) (postNodes.item(i))).getAttribute("sample_url"));
+            }
         } else {
             for (int i = 0; i < postsFound; i++) {
                 debugInfo += i + ", ";
@@ -598,5 +609,34 @@ public class CommandListener implements MessageCreateListener {
         }
 
         return doc;
+    }
+    
+    private static String getStringFromInputStream(InputStream is) {
+
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        try {
+
+            br = new BufferedReader(new InputStreamReader(is));
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return sb.toString();
+
     }
 }
