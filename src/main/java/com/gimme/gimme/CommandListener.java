@@ -581,7 +581,11 @@ public class CommandListener implements MessageCreateListener {
         } else if (format.type == G) {
             for (int i = 0; i < postsFound; i++) {
                 debugInfo += i + ", ";
-                answer.add("http:" + ((Element) (postNodes.item(i))).getAttribute("sample_url"));
+                String sample_url = ((Element) (postNodes.item(i))).getAttribute("sample_url");
+                if (sample_url.substring(2, 7).equals("simg4")) {
+                    sample_url = "//" + sample_url.substring(8);
+                }
+                answer.add("http:" + sample_url);
             }
         } else {
             for (int i = 0; i < postsFound; i++) {
