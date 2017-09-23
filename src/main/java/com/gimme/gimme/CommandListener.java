@@ -506,6 +506,7 @@ public class CommandListener implements MessageCreateListener {
         // URL request
         URL url = new URL(countCheckUrl);
         URLConnection connection = url.openConnection();
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
         
         //System.out.println(debugInfo);
         //System.out.println(getStringFromInputStream(connection.getInputStream()));
@@ -553,6 +554,7 @@ public class CommandListener implements MessageCreateListener {
         
         URL url2 = new URL(searchUrl);
         URLConnection connection2 = url2.openConnection();
+        connection2.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
         
         Document doc2 = parseXML(connection2.getInputStream());
         NodeList postNodes = doc2.getElementsByTagName((format.type == ALTERNATE) ? "file-url" : "post");
@@ -582,10 +584,10 @@ public class CommandListener implements MessageCreateListener {
             for (int i = 0; i < postsFound; i++) {
                 debugInfo += i + ", ";
                 String sample_url = ((Element) (postNodes.item(i))).getAttribute("sample_url");
-                if (sample_url.substring(2, 7).equals("simg4")) {
+                /*if (sample_url.substring(2, 7).equals("simg4")) {
                     sample_url = "//" + sample_url.substring(8);
-                }
-                answer.add("http:" + sample_url);
+                }*/
+                answer.add(sample_url);
             }
         } else {
             for (int i = 0; i < postsFound; i++) {
@@ -595,7 +597,7 @@ public class CommandListener implements MessageCreateListener {
         }
         
         //answer.add(debugInfo);
-        //System.out.println(debugInfo);
+        System.out.println(debugInfo);
         return answer;
     }
 
