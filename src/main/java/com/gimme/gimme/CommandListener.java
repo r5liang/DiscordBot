@@ -302,7 +302,7 @@ public class CommandListener implements MessageCreateListener {
         //if (message.getAuthor().getId().equals(MyGimmeBot.MASTER_ID) || id.equals(MyGimmeBot.MASTER_ID) == false) {
             List<String> tagsWithCounts = new ArrayList<String>();
             for (String tag : stats.mostPopularTags(POPULAR_TAGS_NUMBER)) {
-                tagsWithCounts.add(tag + " (" + stats.tagCounts.get(tag) + ")");
+                tagsWithCounts.add(tag.replace("*", "\\*").replace("_", "\\_") + " (" + stats.tagCounts.get(tag) + ")");
             }
             
             String output = "Stats for " + name + ":\n**" + stats.successSearches + "/" + (stats.failedSearches + stats.successSearches) + 
@@ -507,10 +507,7 @@ public class CommandListener implements MessageCreateListener {
         URL url = new URL(countCheckUrl);
         URLConnection connection = url.openConnection();
         connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
-        
-        //System.out.println(debugInfo);
-        //System.out.println(getStringFromInputStream(connection.getInputStream()));
-        
+
         // Opening response as XML
         Document doc = parseXML(connection.getInputStream());
         NodeList descNodes = doc.getElementsByTagName("posts");
@@ -527,8 +524,10 @@ public class CommandListener implements MessageCreateListener {
         if (postCount <= 0) {
             throw new IllegalArgumentException("No results");
         }
+        if (postCount > 20000 && format.type == G) {
+        	postCount = 20000;
+        }
 
-        // int page = rng.nextInt(postCount) / 100;
         // Randomly select offset post to begin at
         int newOffset = rng.nextInt(postCount);
 
@@ -552,12 +551,14 @@ public class CommandListener implements MessageCreateListener {
         String searchUrl = format.baseUrl + "&tags=" + tagString + urlLimit + urlPage;
         debugInfo += "second url query: " + searchUrl + "\n";
         
+        //System.out.println(debugInfo);
+        
         URL url2 = new URL(searchUrl);
         URLConnection connection2 = url2.openConnection();
         connection2.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
         
         Document doc2 = parseXML(connection2.getInputStream());
-        NodeList postNodes = doc2.getElementsByTagName((format.type == ALTERNATE) ? "file-url" : "post");
+        NodeList postNodes = doc2.getElementsByTagName((format.type == ALTERNATE) ? "large-file-url" : "post");
         int postsFound = postNodes.getLength();
         debugInfo += postsFound + " posts found\n";
         
@@ -577,8 +578,12 @@ public class CommandListener implements MessageCreateListener {
             
             for (int i = 0; i < randomInts.length; i++) {
                 debugInfo += randomInts[i] + ", ";
-                //NodeList nl = .getElementsByTagName("file-url")
-                answer.add(dUrlBase + ((Element)(postNodes.item(randomInts[i]))).getTextContent());
+                //NodeList nl = .getElementsByTagName("large-file-url")
+                String answerUrl = ((Element)(postNodes.item(randomInts[i]))).getTextContent();
+                if (answerUrl.substring(0, 5).equals("/data")) {
+                	answerUrl = dUrlBase + answerUrl;
+                }
+                answer.add(answerUrl);
             }
         } else if (format.type == G) {
             for (int i = 0; i < postsFound; i++) {
